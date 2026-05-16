@@ -88,23 +88,27 @@ def send_notifications(results, now_str):
             print(f"Discord 發送失敗: {e}")
 
 def generate_html_page(results, now_str):
-    """將股價資料填入 HTML 模板，並輸出為 index.html"""
+    """將股價資料填入 HTML 模板，並輸出為 index.html（科技風版本）"""
     table_rows = ""
     for r in results:
-        # 根據漲跌決定顏色樣式
-        color_class = "text-dark"
+        # 根據漲跌決定霓虹發光顏色與箭頭
+        color_style = "color: #e0e0e0;"  # 平盤灰色
+        icon = "▬"
+        
         if '+' in r['change']:
-            color_class = "text-danger fw-bold"  # 紅色代表漲
+            color_style = "color: #ff4a5a; text-shadow: 0 0 8px rgba(255, 74, 90, 0.6);"  # 科技紅發光
+            icon = "▲"
         elif '-' in r['change'] and r['change'] != "-":
-            color_class = "text-success fw-bold" # 綠色代表跌
+            color_style = "color: #00ff87; text-shadow: 0 0 8px rgba(0, 255, 135, 0.6);"  # 科技綠發光
+            icon = "▼"
 
         table_rows += f"""
-        <tr>
-            <td>{r['code']}</td>
-            <td>{r['name']}</td>
-            <td class="fw-bold">{r['price']}</td>
-            <td class="{color_class}">{r['change']}</td>
-            <td>{r['time']}</td>
+        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.3s;">
+            <td style="color: #00d2ff; font-weight: bold; font-family: 'Courier New', monospace;">{r['code']}</td>
+            <td style="color: #ffffff; font-weight: 500;">{r['name']}</td>
+            <td style="color: #ffffff; font-weight: bold; font-family: 'Courier New', monospace;">{r['price']}</td>
+            <td style="{color_style} font-family: 'Courier New', monospace;">{icon} {r['change']}</td>
+            <td style="color: #8892b0; font-size: 0.9rem;">{r['time']}</td>
         </tr>
         """
 
@@ -113,31 +117,89 @@ def generate_html_page(results, now_str):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>台股即時股價看板</title>
+    <title>⚡ MATRIX STOCK TERMINAL</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {{
+            background-color: #0a0f1d;
+            background-image: 
+                radial-gradient(at 50% 0%, rgba(0, 210, 255, 0.1) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(138, 43, 226, 0.05) 0px, transparent 50%);
+            color: #e2e8f0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+        }}
+        .cyber-panel {{
+            background: rgba(16, 24, 48, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 210, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), 0 0 15px rgba(0, 210, 255, 0.1);
+            border-radius: 12px;
+        }}
+        .cyber-header {{
+            border-bottom: 2px solid rgba(0, 210, 255, 0.3);
+            padding-bottom: 15px;
+        }}
+        .glitch-text {{
+            color: #00d2ff;
+            text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+            font-weight: 800;
+            letter-spacing: 2px;
+        }}
+        .scanline {{
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 0, 0.06));
+            z-index: 9999;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+            opacity: 0.4;
+        }}
+        .table {{
+            --bs-table-bg: transparent;
+            --bs-table-color: #e2e8f0;
+            --bs-table-hover-bg: rgba(0, 210, 255, 0.05);
+        }}
+        .table th {{
+            color: #00d2ff !important;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            border-bottom: 2px solid rgba(0, 210, 255, 0.3) !important;
+        }}
+        tr:hover td {{
+            color: #fff !important;
+        }}
+    </style>
 </head>
-<body class="bg-light">
+<body>
+    <div class="scanline"></div>
     <div class="container py-5">
         <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow">
-                    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                        <h4 class="mb-0">📊 台股即時股價看板</h4>
-                        <span class="badge bg-secondary">自動更新</span>
+            <div class="col-md-9">
+                <div class="card cyber-panel p-4">
+                    <div class="cyber-header d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="mb-0 glitch-text">🖥️ TW_STOCK // TERMINAL</h3>
+                        <span class="badge" style="background: rgba(0, 210, 255, 0.2); color: #00d2ff; border: 1px solid #00d2ff; box-shadow: 0 0 8px rgba(0,210,255,0.3);">SYSTEM ONLINE</span>
                     </div>
-                    <div class="card-body">
-                        <p class="text-muted">最後更新時間：{now_str}</p>
+                    <div class="card-body p-0">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span style="color: #8892b0; font-size: 0.9rem;">
+                                <span style="color: #00d2ff;">▶</span> LAST_UPDATE: {now_str}
+                            </span>
+                            <span style="color: #8892b0; font-size: 0.8rem; font-family: monospace;">CORE_v2.0 // REFRESH_SUCCESS</span>
+                        </div>
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead class="table-dark">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead>
                                     <tr>
-                                        <th>股票代號</th>
-                                        <th>股票名稱</th>
-                                        <th>即時股價</th>
-                                        <th>漲跌幅</th>
-                                        <th>資料時間</th>
+                                        <th>CODE</th>
+                                        <th>NAME</th>
+                                        <th>PRICE</th>
+                                        <th>CHG (%)</th>
+                                        <th>TIME</th>
                                     </tr>
-                                 Populated by Python 
                                 </thead>
                                 <tbody>
                                     {table_rows}
@@ -156,7 +218,7 @@ def generate_html_page(results, now_str):
     os.makedirs('_site', exist_ok=True)
     with open('_site/index.html', 'w', encoding='utf-8') as f:
         f.write(html_content)
-    print("網頁 index.html 生成成功！")
+    print("科技風網頁 index.html 生成成功！")
 
 if __name__ == "__main__":
     # 設定時區為台北時間
