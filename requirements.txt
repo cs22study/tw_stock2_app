@@ -1,2 +1,3 @@
 twstock==1.4
 requests==2.31.0
+lxml==5.1.0
